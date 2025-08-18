@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Content-Type-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; script-src 'self';">
+    <meta name="description" content="Personal Library Management System">
+    <meta name="theme-color" content="#000000">
+    <title>My Personal Library</title>
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="/css/index.css" as="style">
+    
+    <!-- Stylesheets -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/index.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico">
+</head>
+<body>
+    <!-- Hero Banner -->
+    <section class="hero text-white text-center py-5">
+        <div class="container">
+            <h1 class="display-4">🌍 Explore the World Through Books</h1>
+            <p class="lead">Embark on an epic journey with stories that ignite your imagination.</p>
+            <a href="login.html" class="btn btn-outline-light btn-lg mt-3">Start Your Adventure</a>
+        </div>
+    </section>
+
+    <!-- Full-Width Image -->
+    <section class="full-width-image">
+        <img src="/images/mainpage.jpg" 
+             alt="Adventurous Landscape" 
+             class="img-fluid"
+             loading="lazy"
+             width="1200"
+             height="600">
+    </section>
+
+    <!-- Adventure Quote Section -->
+    <section class="adventure-quote py-5 text-center text-white">
+        <div class="container">
+            <blockquote class="blockquote">
+                <p>"Books are uniquely portable magic." – Stephen King</p>
+            </blockquote>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 bg-secondary text-white">
+        <p>© 2025 My Personal Library | Adventure Awaits!</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/config.js"></script>
+    <script type="module" src="/js/index.js"></script>
+    
+    <!-- Error tracking -->
+    <script>
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e);
+            // Add your error tracking service here
+        });
+    </script>
+</body>
+</html>

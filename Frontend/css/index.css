@@ -1,0 +1,78 @@
+/* General styles */
+body {
+    font-family: 'Georgia', serif;
+    background-color: #f5efe6; /* Earthy light beige */
+    color: #4a3c2f; /* Earthy brown */
+}
+
+/* Hero section */
+.hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+    url('https://via.placeholder.com/1920x600') center/cover no-repeat;
+    padding: 100px 0;
+}
+
+/* Library cards */
+.book-card {
+    background-color: #e8dec5; /* Light earthy tone */
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+/* Full-width image styling */
+.full-width-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0;
+}
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.delete-button {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.card:hover .delete-button {
+    display: block;
+}
+
+.book-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.card-title {
+    color: #4a3c2f; /* Earthy brown */
+}
+
+/* Adventure Quote Section */
+.adventure-quote {
+    background-color: #6e5b44; /* Dark brown */
+    font-style: italic;
+    padding: 40px 0;
+}
+
+/* Footer */
+footer {
+    background-color: #4a3c2f; /* Matching deep brown */
+}

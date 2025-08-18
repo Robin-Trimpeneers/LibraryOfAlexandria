@@ -1,0 +1,67 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore build directories
+dist/
+build/
+
+# Ignore environment files
+.env
+.env.local
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE specific files
+.vscode/
+.idea/
+
+# Ignore Frontend specific files
+Frontend/node_modules/
+Frontend/dist/
+Frontend/build/
+
+# Ignore BookApplication specific files
+Backend/node_modules/
+Backend/dist/
+Backend/build/
+ssh-key-2025-01-30.key
+ssh-key-2025-01-30.key.pub
+
+HELP.md
+./Backend/target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+./Backend/apt_generated
+./Backend/.classpath
+./Backend/.factorypath
+./Backend/.project
+./Backend/.settings
+./Backend/.springBeans
+./Backend/.sts4-cache
+
+### IntelliJ IDEA ###
+./Backend/.idea
+./Backend/*.iws
+./Backend/*.iml
+./Backend/*.ipr
+
+### NetBeans ###
+./Backend/nbproject/private/
+./Backend/nbbuild/
+./Backend/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/

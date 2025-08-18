@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Book | Personal Library</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+<header class="bg-dark text-white text-center py-4">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <a href="./library.html" class="btn btn-outline-light">← Back to Library</a>
+      <div>
+        <h1>      ➕ Add a Book Manually        </h1>
+      </div>
+      <div></div>
+    </div>
+  </div>
+</header>
+
+<div class="container mt-5">
+  <form id="editForm">
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <div class="card book-card">
+          <img id="bookThumbnail" src="https://via.placeholder.com/350x500" class="card-img-top" alt="Book Cover">
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label">Thumbnail URL</label>
+              <input type="text" id="editThumbnail" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        <div class="card book-card mb-4">
+          <div class="card-body">
+            <h4 class="card-title mb-4">Add a Book </h4>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3" id="isbnFieldGroup" style="display: none;">
+                  <label class="form-label">ISBN</label>
+                  <input type="text" id="editIsbn" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Title</label>
+                  <input type="text" id="editTitle" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Author</label>
+                  <input type="text" id="editAuthor" class="form-control">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Genre</label>
+                  <input type="text" id="editGenre" class="form-control">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Publisher</label>
+                  <input type="text" id="editPublisher" class="form-control">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Publication Date</label>
+                  <input type="text" id="editPublishedDate" class="form-control">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Pages</label>
+                  <input type="number" id="editPages" class="form-control">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card book-card">
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea id="editDescription" class="form-control" rows="5"></textarea>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-4 d-flex justify-content-between">
+          <button type="button" class="btn btn-danger" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-success">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script src="js/bootstrap.bundle.min.js"></script>
+<script type="module" src="js/edit.js"></script>
+</body>
+</html>

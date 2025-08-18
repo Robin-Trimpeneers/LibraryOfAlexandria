@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owned Book Details | Adventurous Personal Library</title>
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <header class="bg-dark text-white text-center py-4">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="./library.html" class="btn btn-outline-light">← Back to Library</a>
+                <div>
+                    <h1>📖 Owned Book Details</h1>
+                    <p class="lead">Your personal book collection</p>
+                </div>
+                <div></div> <!-- Spacer for alignment -->
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Book Cover Column -->
+            <div class="col-md-4 mb-4">
+                <div class="card book-card">
+                    <img id="bookThumbnail" src="https://via.placeholder.com/350x500" class="card-img-top" alt="Book Cover">
+                    <div class="card-body">
+                        <h5 class="card-title" id="bookTitle"></h5>
+                        <p class="card-text" id="bookAuthor"></p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>ISBN:</strong> <span id="bookIsbn"></span></li>
+                            <li class="list-group-item"><strong>Genre:</strong> <span id="bookGenre"></span></li>
+                            <li class="list-group-item"><strong>Pages:</strong> <span id="bookPages"></span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Book Details Column -->
+            <div class="col-md-8">
+                <div class="card book-card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Book Information</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Publisher:</strong> <span id="bookPublisher"></span></p>
+                                <p><strong>Publication Date:</strong> <span id="bookPublishedDate"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Language:</strong> <span id="bookLanguage"></span></p>
+                                <p><strong>Status:</strong> <span id="bookOwner"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Section -->
+                <div class="card book-card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Description</h5>
+                        <p id="bookDescription" class="card-text"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-3 bg-secondary text-white mt-4">
+        <p>© 2025 My Personal Library | Adventure Awaits!</p>
+    </footer>
+
+    <!-- Bootstrap Bundle and JS -->
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="js/ownedDetails.js"></script>
+</body>
+</html>

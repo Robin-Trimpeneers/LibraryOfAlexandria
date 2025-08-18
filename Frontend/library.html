@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adventurous Personal Library</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+<header class="bg-dark text-white text-center py-4">
+  <h1>📚 My Library</h1>
+  <p class="lead">Discover the world through stories and knowledge</p>
+</header>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <aside class="col-md-3 bg-light p-3">
+      <div class="card-body text-center">
+        <a href="edit.html" class="btn btn-success btn-lg">
+          ➕ Add a Book Manually
+        </a>
+      </div>
+      <h5 class="text-center">Filter by Genre</h5>
+      <select id="categoryFilter" class="form-select">
+        <option value="">All Categories</option>
+      </select>
+    </aside>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="col-md-9 p-3">
+      <!-- Search Box -->
+      <form id="search-form" class="row g-3">
+        <div class="input-group mb-4">
+          <input type="text" id="isbnSearch" class="form-control" placeholder="Search by ISBN">
+          <button id="searchButton" type="submit" class="btn btn-primary">Search</button>
+        </div>
+      </form>
+
+      <!-- Add Book Section -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Add a New Book</h5>
+          <form id="addBookForm">
+            <div class="mb-3">
+              <label for="addIsbn" class="form-label">ISBN</label>
+              <input type="text" id="addIsbn" class="form-control" placeholder="Enter ISBN" required>
+            </div>
+            <button type="submit" id="addBookButton" class="btn btn-success">Add Book</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Book List -->
+      <div id="booksContainer" class="mt-4">
+        <!-- Books will be displayed here -->
+      </div>
+    </main>
+  </div>
+</div>
+
+<footer class="text-center py-3 bg-secondary text-white">
+  <p>© 2025 My Personal Library | Adventure Awaits!</p>
+</footer>
+
+<!-- JavaScript Files -->
+<script type="module" src="js/library.js"></script>
+</body>
+</html>
