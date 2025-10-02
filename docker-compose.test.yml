@@ -1,0 +1,66 @@
+# Docker Compose for Jenkins Testing
+services:
+  springboot-app:
+    build: ./Backend
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-test:3306/librarydb_test?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: testuser
+      SPRING_DATASOURCE_PASSWORD: testpass
+      JWT_SECRET: test-secret-key-for-jenkins-testing-only
+      GOOGLE_API_KEY: test-api-key
+    depends_on:
+      mysql-test:
+        condition: service_healthy
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5050/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    ports:
+      - "5050:5050"
+
+  mysql-test:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: librarydb_test
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpass
+      MYSQL_ROOT_PASSWORD: testroot
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD-SHELL", "export MYSQL_PWD=testpass && mysql -u testuser -e 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Integration test runner
+  integration-tests:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile.test
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-test:3306/librarydb_test?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: testuser
+      SPRING_DATASOURCE_PASSWORD: testpass
+      JWT_SECRET: test-secret-key-for-jenkins-testing-only
+      GOOGLE_API_KEY: test-api-key
+      API_BASE_URL: http://springboot-app:5050
+    depends_on:
+      springboot-app:
+        condition: service_healthy
+      mysql-test:
+        condition: service_healthy
+    networks:
+      - test-network
+    command: ["mvn", "test", "-Dtest=**/*IntegrationTest"]
+
+networks:
+  test-network:
+    driver: bridge

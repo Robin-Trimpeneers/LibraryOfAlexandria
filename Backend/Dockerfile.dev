@@ -1,0 +1,17 @@
+# Development Dockerfile with hot reload
+FROM maven:3.9.4-eclipse-temurin-21-alpine
+
+WORKDIR /app
+
+# Install development tools
+RUN apk add --no-cache curl
+
+# Copy pom.xml and download dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY src ./src
+
+# Development command with hot reload
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"]

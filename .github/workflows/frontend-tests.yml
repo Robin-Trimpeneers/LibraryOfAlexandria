@@ -1,0 +1,89 @@
+name: Frontend Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths: [ 'Frontend/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'Frontend/**' ]
+
+jobs:
+  frontend-tests:
+    name: Frontend Tests and Linting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm init -y
+        npm install --save-dev eslint prettier htmlhint stylelint stylelint-config-standard
+    
+    - name: Create ESLint config
+      run: |
+        cat > .eslintrc.json << 'EOF'
+        {
+          "env": {
+            "browser": true,
+            "es2021": true
+          },
+          "extends": "eslint:recommended",
+          "parserOptions": {
+            "ecmaVersion": 12,
+            "sourceType": "module"
+          },
+          "rules": {
+            "no-unused-vars": "warn",
+            "no-console": "warn"
+          }
+        }
+        EOF
+    
+    - name: Create HTMLHint config
+      run: |
+        cat > .htmlhintrc << 'EOF'
+        {
+          "tagname-lowercase": true,
+          "attr-lowercase": true,
+          "attr-value-double-quotes": true,
+          "doctype-first": true,
+          "tag-pair": true,
+          "spec-char-escape": true,
+          "id-unique": true,
+          "src-not-empty": true,
+          "attr-no-duplication": true
+        }
+        EOF
+    
+    - name: Lint HTML files
+      run: |
+        npx htmlhint Frontend/**/*.html
+    
+    - name: Lint CSS files
+      run: |
+        npx stylelint "Frontend/**/*.css"
+    
+    - name: Lint JavaScript files
+      run: |
+        npx eslint Frontend/**/*.js
+    
+    - name: Check code formatting
+      run: |
+        npx prettier --check "Frontend/**/*.{html,css,js}"
+    
+    - name: Run basic frontend tests
+      run: |
+        # Simple validation that files exist and are not empty
+        find Frontend -name "*.html" -exec test -s {} \; || exit 1
+        find Frontend -name "*.css" -exec test -s {} \; || exit 1
+        find Frontend -name "*.js" -exec test -s {} \; || exit 1
+        echo "✅ All frontend files are valid and non-empty"

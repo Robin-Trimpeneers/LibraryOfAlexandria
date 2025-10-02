@@ -1,0 +1,20 @@
+# Test Dockerfile for integration testing
+FROM maven:3.9.4-eclipse-temurin-21-alpine
+
+WORKDIR /app
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+# Copy pom.xml and download dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY src ./src
+
+# Set up test environment
+ENV SPRING_PROFILES_ACTIVE=test
+
+# Default command for integration tests
+CMD ["mvn", "test"]

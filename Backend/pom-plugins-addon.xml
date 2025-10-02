@@ -1,0 +1,36 @@
+# Dependency Check Plugin Configuration
+<plugin>
+    <groupId>org.owasp</groupId>
+    <artifactId>dependency-check-maven</artifactId>
+    <version>8.4.0</version>
+    <configuration>
+        <failBuildOnCVSS>7</failBuildOnCVSS>
+        <skipSystemScope>true</skipSystemScope>
+    </configuration>
+    <executions>
+        <execution>
+            <goals>
+                <goal>check</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+
+<!-- License Plugin -->
+<plugin>
+    <groupId>com.mycila</groupId>
+    <artifactId>license-maven-plugin</artifactId>
+    <version>4.3</version>
+    <configuration>
+        <licenseSets>
+            <licenseSet>
+                <header>com/mycila/maven/plugin/license/templates/MIT.txt</header>
+                <includes>
+                    <include>**/*.java</include>
+                </includes>
+            </licenseSet>
+        </licenseSets>
+    </configuration>
+</plugin>
+
+<!-- Add this to your existing pom.xml plugins section -->

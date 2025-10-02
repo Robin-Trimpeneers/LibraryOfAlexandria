@@ -1,0 +1,78 @@
+# Development Docker Compose
+# Use this for development with hot reload and debugging
+
+services:
+  springboot-app-dev:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5050:5050"
+      - "5005:5005"  # Debug port
+    depends_on:
+      mysql-dev:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-dev:3306/librarydb_dev?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      SPRING_PROFILES_ACTIVE: dev
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    volumes:
+      - ./Backend/src:/app/src
+      - ./Backend/target:/app/target
+    networks:
+      - dev-network
+
+  mysql-dev:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"  # Different port to avoid conflicts
+    environment:
+      MYSQL_DATABASE: librarydb_dev
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql-dev-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "export MYSQL_PWD=$$MYSQL_PASSWORD && mysql -u $$MYSQL_USER -e 'SELECT 1'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  nginx-dev:
+    image: nginx:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./Frontend:/usr/share/nginx/html
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - springboot-app-dev
+    networks:
+      - dev-network
+
+  phpmyadmin-dev:
+    image: phpmyadmin/phpmyadmin:latest
+    ports:
+      - "8082:80"  # Different port for dev
+    environment:
+      PMA_HOST: mysql-dev
+      PMA_PORT: 3306
+    depends_on:
+      - mysql-dev
+    networks:
+      - dev-network
+
+networks:
+  dev-network:
+    driver: bridge
+
+volumes:
+  mysql-dev-data:

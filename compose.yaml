@@ -1,6 +1,6 @@
 services:
   springboot-app:
-    build: .
+    build: ./Backend
     image: robintrimpeneerspxl/librarydb
     ports:
       - "5050:5050"
@@ -44,6 +44,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
     healthcheck:
