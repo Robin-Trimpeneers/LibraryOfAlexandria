@@ -19,6 +19,8 @@ A full-stack book library management application with Spring Boot backend and va
 - (Optional) Java 21 and Maven for local development
 - (Optional) Jenkins for CI/CD pipeline
 
+**📋 For detailed dependencies and setup instructions, see [`DEPENDENCIES.md`](DEPENDENCIES.md)**
+
 ### 1. Clone the Repository
 
 ```bash
@@ -28,10 +30,20 @@ cd LibraryOfAlexandria
 
 ### 2. Set Up Environment Variables
 
-The `.env` file is already configured with default values. **Important**: 
+**Important**: The `.env` file is not included in the repository for security reasons.
 
-- **Google Books API**: Get your API key from [Google Cloud Console](https://console.cloud.google.com/) and replace `your_google_books_api_key_here` in `.env`
-- For production, change the default passwords in `.env`
+```bash
+# Copy the template and edit with your values
+cp .env.template .env
+
+# Edit .env file with:
+# - Your Google Books API key from Google Cloud Console
+# - Secure database passwords
+# - JWT secret (64+ characters)
+# - For production, use strong passwords
+```
+
+**🔑 Getting API Keys**: See [`DEPENDENCIES.md`](DEPENDENCIES.md) for detailed instructions on obtaining Google Books API key and other credentials.
 
 ### 3. Run with Docker Compose
 

@@ -136,6 +136,36 @@ backup_current_deployment() {
 copy_files() {
     log "Copying application files..."
     
+    # Create .env file if it doesn't exist
+    if [[ ! -f ".env" ]]; then
+        warning ".env file not found, creating from template..."
+        if [[ -f ".env.template" ]]; then
+            cp .env.template .env
+            warning "Please edit .env file with your actual values before deployment"
+        else
+            # Create basic .env file
+            cat > .env << 'EOF'
+# Database Configuration
+SPRING_DATASOURCE_USERNAME=appuser
+SPRING_DATASOURCE_PASSWORD=change-this-password
+MYSQL_USER=appuser
+MYSQL_PASSWORD=change-this-password
+MYSQL_ROOT_PASSWORD=change-this-root-password
+
+# JWT Configuration
+JWT_SECRET=change-this-jwt-secret-must-be-64-characters-minimum
+
+# Google Books API
+GOOGLE_API_KEY=your-google-books-api-key-here
+
+# Application Profile
+SPRING_PROFILES_ACTIVE=prod
+EOF
+            error "Created basic .env file. EDIT IT WITH YOUR VALUES before continuing!"
+            exit 1
+        fi
+    fi
+    
     if [[ "$LOCAL_DEPLOYMENT" == "true" ]]; then
         cp $COMPOSE_FILE $DEPLOY_PATH/
         cp .env $DEPLOY_PATH/
