@@ -92,27 +92,30 @@ pipeline {
                             # Set proper permissions for SSH key
                             chmod 600 \$SSH_KEY
                             
-                            # Create deployment directory
+                            # Create deployment directory (without sudo, in user home)
                             ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} '
-                                sudo mkdir -p ${deployPath}
-                                sudo chown \$USER:\$USER ${deployPath}
+                                mkdir -p ~/deployments/${deployPath.replaceAll('/opt/', '')}
+                                DEPLOY_PATH=~/deployments/${deployPath.replaceAll('/opt/', '')}
+                                echo "Using deployment path: \$DEPLOY_PATH"
                             '
                             
                             # Copy deployment files
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no ${composeFile} \$SSH_USER@${env.SERVER_IP}:${deployPath}/
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no .env \$SSH_USER@${env.SERVER_IP}:${deployPath}/
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no nginx.conf \$SSH_USER@${env.SERVER_IP}:${deployPath}/
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no init.sql \$SSH_USER@${env.SERVER_IP}:${deployPath}/
-                            scp -r -i \$SSH_KEY -o StrictHostKeyChecking=no Frontend \$SSH_USER@${env.SERVER_IP}:${deployPath}/
+                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} "mkdir -p ~/deployments/${deployPath.replaceAll('/opt/', '')}"
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no ${composeFile} \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no .env \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no nginx.conf \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no init.sql \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
+                            scp -r -i \$SSH_KEY -o StrictHostKeyChecking=no Frontend \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
                             
                             # Deploy application
                             ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} '
-                                cd ${deployPath}
+                                DEPLOY_PATH=~/deployments/${deployPath.replaceAll('/opt/', '')}
+                                cd \$DEPLOY_PATH
                                 
                                 # Update image tag in compose file
                                 sed -i "s|image: robintrimpeneerspxl/librarydb.*|image: robintrimpeneerspxl/librarydb:${env.DOCKER_TAG}|g" ${composeFile}
                                 
-                                # Stop and start containers
+                                # Stop and start containers (Docker should work without sudo if user is in docker group)
                                 docker-compose -f ${composeFile} down || true
                                 docker-compose -f ${composeFile} up -d
                                 
