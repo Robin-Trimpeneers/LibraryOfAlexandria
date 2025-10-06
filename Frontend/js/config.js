@@ -1,8 +1,8 @@
 // config.js
 const config = {
     API_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://localhost:8080/api' 
-        : `${window.location.protocol}//${window.location.host}/api`,
+        ? 'http://localhost:8080' 
+        : `${window.location.protocol}//${window.location.host}`,
     AUTH_COOKIE_NAME: 'JWT',
     DEFAULT_BOOK_COVER: '/assets/default-book-cover.jpg',
     NOTIFICATION_DURATION: 5000,
