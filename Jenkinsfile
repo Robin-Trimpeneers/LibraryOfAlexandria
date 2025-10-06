@@ -42,7 +42,7 @@ pipeline {
             }
             post {
                 always {
-                    junit testResultsPattern: 'Backend/target/surefire-reports/*.xml'
+                    junit testResults: 'Backend/target/surefire-reports/*.xml'
                 }
             }
         }
