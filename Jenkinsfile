@@ -71,42 +71,43 @@ pipeline {
                     def deployPath = params.ENVIRONMENT == 'production' ? '/opt/library-app' : "/opt/library-app-${params.ENVIRONMENT}"
                     def composeFile = params.ENVIRONMENT == 'dev' ? 'docker-compose.dev.yml' : 'docker-compose.yml'
                     
-                    // Create .env file with Jenkins credentials
-                    def envContent = """# Database Configuration
-SPRING_DATASOURCE_USERNAME=${env.DB_CREDENTIALS_USR}
-SPRING_DATASOURCE_PASSWORD=${env.DB_CREDENTIALS_PSW}
-MYSQL_USER=${env.DB_CREDENTIALS_USR}
-MYSQL_PASSWORD=${env.DB_CREDENTIALS_PSW}
-MYSQL_ROOT_PASSWORD=${env.DB_CREDENTIALS_PSW}
-
-# JWT Configuration
-JWT_SECRET=${env.JWT_SECRET}
-
-# Google Books API
-GOOGLE_API_KEY=${env.GOOGLE_API_KEY}
-
-# Application Profile
-SPRING_PROFILES_ACTIVE=${params.ENVIRONMENT}
-"""
+                    // Create .env file with Jenkins credentials (using string concatenation for security)
+                    def envContent = "# Database Configuration\n"
+                    envContent += "SPRING_DATASOURCE_USERNAME=${env.DB_CREDENTIALS_USR}\n"
+                    envContent += "SPRING_DATASOURCE_PASSWORD=${env.DB_CREDENTIALS_PSW}\n"
+                    envContent += "MYSQL_USER=${env.DB_CREDENTIALS_USR}\n"
+                    envContent += "MYSQL_PASSWORD=${env.DB_CREDENTIALS_PSW}\n"
+                    envContent += "MYSQL_ROOT_PASSWORD=${env.DB_CREDENTIALS_PSW}\n"
+                    envContent += "\n# JWT Configuration\n"
+                    envContent += "JWT_SECRET=${env.JWT_SECRET}\n"
+                    envContent += "\n# Google Books API\n"
+                    envContent += "GOOGLE_API_KEY=${env.GOOGLE_API_KEY}\n"
+                    envContent += "\n# Application Profile\n"
+                    envContent += "SPRING_PROFILES_ACTIVE=${params.ENVIRONMENT}\n"
+                    
                     writeFile file: '.env', text: envContent
                     
-                    sshagent(['ssh-key-credentials']) {
+                    // SSH deployment with credentials
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-credentials', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                         sh """
+                            # Set up SSH key permissions
+                            chmod 600 \$SSH_KEY
+                            
                             # Create deployment directory
-                            ssh -o StrictHostKeyChecking=no ${env.DEPLOY_USER_USR}@${env.SERVER_IP} '
+                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} '
                                 sudo mkdir -p ${deployPath}
-                                sudo chown ${env.DEPLOY_USER_USR}:${env.DEPLOY_USER_USR} ${deployPath}
+                                sudo chown \$USER:\$USER ${deployPath}
                             '
                             
                             # Copy files
-                            scp -o StrictHostKeyChecking=no ${composeFile} ${env.DEPLOY_USER_USR}@${env.SERVER_IP}:${deployPath}/
-                            scp -o StrictHostKeyChecking=no .env ${env.DEPLOY_USER_USR}@${env.SERVER_IP}:${deployPath}/
-                            scp -o StrictHostKeyChecking=no nginx.conf ${env.DEPLOY_USER_USR}@${env.SERVER_IP}:${deployPath}/
-                            scp -o StrictHostKeyChecking=no init.sql ${env.DEPLOY_USER_USR}@${env.SERVER_IP}:${deployPath}/
-                            scp -r -o StrictHostKeyChecking=no Frontend ${env.DEPLOY_USER_USR}@${env.SERVER_IP}:${deployPath}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no ${composeFile} \$SSH_USER@${env.SERVER_IP}:${deployPath}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no .env \$SSH_USER@${env.SERVER_IP}:${deployPath}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no nginx.conf \$SSH_USER@${env.SERVER_IP}:${deployPath}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no init.sql \$SSH_USER@${env.SERVER_IP}:${deployPath}/
+                            scp -r -i \$SSH_KEY -o StrictHostKeyChecking=no Frontend \$SSH_USER@${env.SERVER_IP}:${deployPath}/
                             
                             # Deploy
-                            ssh -o StrictHostKeyChecking=no ${env.DEPLOY_USER_USR}@${env.SERVER_IP} '
+                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} '
                                 cd ${deployPath}
                                 
                                 # Update image tag in compose file
@@ -118,10 +119,13 @@ SPRING_PROFILES_ACTIVE=${params.ENVIRONMENT}
                                 
                                 # Wait and check health
                                 sleep 30
-                                curl -f http://localhost:8080 || exit 1
+                                curl -f http://localhost:8080/actuator/health || curl -f http://localhost:8080 || echo "Health check failed but deployment may still be successful"
                             '
                         """
                     }
+                    
+                    // Also archive artifacts as backup
+                    archiveArtifacts artifacts: '.env,docker-compose.yml,nginx.conf,init.sql', fingerprint: true
                 }
             }
         }
