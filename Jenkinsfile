@@ -99,25 +99,48 @@ pipeline {
                                 echo "Using deployment path: \$DEPLOY_PATH"
                             '
                             
-                            # Copy deployment files
+                            # Copy deployment files (using correct file paths)
                             ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} "mkdir -p ~/deployments/${deployPath.replaceAll('/opt/', '')}"
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no ${composeFile} \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
+                            
+                            # Check if files exist and copy them
+                            if [ -f "${composeFile}" ]; then
+                                scp -i \$SSH_KEY -o StrictHostKeyChecking=no ${composeFile} \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
+                            else
+                                echo "Warning: ${composeFile} not found, using docker-compose.yml"
+                                scp -i \$SSH_KEY -o StrictHostKeyChecking=no docker-compose.yml \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
+                            fi
+                            
                             scp -i \$SSH_KEY -o StrictHostKeyChecking=no .env \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no nginx.conf \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
-                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no init.sql \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
-                            scp -r -i \$SSH_KEY -o StrictHostKeyChecking=no Frontend \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
+                            
+                            # Copy other files if they exist
+                            [ -f nginx.conf ] && scp -i \$SSH_KEY -o StrictHostKeyChecking=no nginx.conf \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/ || echo "nginx.conf not found"
+                            [ -f init.sql ] && scp -i \$SSH_KEY -o StrictHostKeyChecking=no init.sql \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/ || echo "init.sql not found"
+                            [ -d Frontend ] && scp -r -i \$SSH_KEY -o StrictHostKeyChecking=no Frontend \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/ || echo "Frontend directory not found"
                             
                             # Deploy application
                             ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} '
                                 DEPLOY_PATH=~/deployments/${deployPath.replaceAll('/opt/', '')}
                                 cd \$DEPLOY_PATH
                                 
+                                # List files to verify they were copied
+                                echo "Files in deployment directory:"
+                                ls -la
+                                
+                                # Determine which compose file to use
+                                if [ -f "${composeFile}" ]; then
+                                    COMPOSE_FILE="${composeFile}"
+                                else
+                                    COMPOSE_FILE="docker-compose.yml"
+                                fi
+                                
+                                echo "Using compose file: \$COMPOSE_FILE"
+                                
                                 # Update image tag in compose file
-                                sed -i "s|image: robintrimpeneerspxl/librarydb.*|image: robintrimpeneerspxl/librarydb:${env.DOCKER_TAG}|g" ${composeFile}
+                                sed -i "s|image: robintrimpeneerspxl/librarydb.*|image: robintrimpeneerspxl/librarydb:${env.DOCKER_TAG}|g" \$COMPOSE_FILE
                                 
                                 # Stop and start containers (Docker should work without sudo if user is in docker group)
-                                docker-compose -f ${composeFile} down || true
-                                docker-compose -f ${composeFile} up -d
+                                docker-compose -f \$COMPOSE_FILE down || true
+                                docker-compose -f \$COMPOSE_FILE up -d
                                 
                                 # Wait and check health
                                 sleep 30
