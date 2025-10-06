@@ -20,14 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Register the user and get the response data
             const data = await registerUser(name, email, password);
+            console.log('Registration successful:', data);
 
             // Store the JWT token in localStorage
             //localStorage.setItem('token', data.token); // Adjust 'token' based on your server's response key
 
             showMessage('Registration successful, redirecting...', 'success');
             setTimeout(() => {
-                window.location.href = '../library.html';
-            }, 5000);
+                console.log('Redirecting to library...');
+                window.location.href = '/library.html';
+            }, 2000); // Reduced to 2 seconds for faster testing
         } catch (error) {
             console.error('Registration error:', error);
             showMessage(error.message, 'danger');

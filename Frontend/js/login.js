@@ -89,8 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkForHttpOnlyCookie() {
         fetch(`${config.API_URL}/auth/check-cookie`, { credentials: 'include' })
             .then(response => {
+                console.log('Cookie check response:', response.status);
                 if (response.ok) {
+                    console.log('Login successful, redirecting...');
                     window.location.href = '/library.html';
+                } else {
+                    console.log('No valid session found');
                 }
             })
             .catch(error => console.error('Error checking cookie:', error));
