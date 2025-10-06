@@ -74,9 +74,11 @@ public class WebSecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(Arrays.asList(
-            "http://localhost:8080",  // Add nginx port
-            "http://localhost:*",
-            "http://127.0.0.1:*"
+            "http://localhost:8080",  // Local development
+            "http://localhost:*",     // Local development with any port
+            "http://127.0.0.1:*",     // Local loopback
+            "http://192.168.129.139:8080",  // Production server
+            "http://192.168.129.139:*"      // Production server with any port
         ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList(
