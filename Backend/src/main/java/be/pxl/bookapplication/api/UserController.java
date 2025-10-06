@@ -13,6 +13,7 @@ import be.pxl.bookapplication.request.updateUserTestingRequest;
 import be.pxl.bookapplication.service.UserDetailsService;
 import be.pxl.bookapplication.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -54,6 +55,20 @@ public class UserController {
         this.authenticationManager = authenticationManager;
     }
 
+    private String getCookieDomain(HttpServletRequest request) {
+        String host = request.getHeader("Host");
+        if (host != null) {
+            // Extract domain from host (remove port if present)
+            String domain = host.split(":")[0];
+            // For localhost, return null (browser will use current domain)
+            if ("localhost".equals(domain) || "127.0.0.1".equals(domain)) {
+                return null;
+            }
+            return domain;
+        }
+        return null;
+    }
+
 
     @GetMapping("/check-cookie")
     public ResponseEntity<?> checkHttpOnlyCookie(HttpServletRequest request) {
@@ -69,7 +84,7 @@ public class UserController {
 
 
     @PostMapping("/users")
-    public ResponseEntity<?> addUser(@RequestBody User user) {
+    public ResponseEntity<?> addUser(@RequestBody User user, HttpServletRequest request) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new EmailAlreadyExistsException("Email already exists");
         }
@@ -85,7 +100,7 @@ public class UserController {
             .path("/")
             .maxAge(86400)
             .sameSite("Lax")  // Change from Strict to Lax for cross-origin
-            .domain("localhost")  // Add this
+            .domain(getCookieDomain(request))  // Dynamic domain
             .build();
 
         return ResponseEntity.ok()
@@ -98,7 +113,7 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         try {
             // Authenticate using email (from User entity) and password
             authenticationManager.authenticate(
@@ -122,7 +137,7 @@ public class UserController {
                 .path("/")
                 .maxAge(86400) // 24 hours
                 .sameSite("Lax")
-                .domain("localhost")
+                .domain(getCookieDomain(httpRequest))
                 .build();
 
             return ResponseEntity.ok()

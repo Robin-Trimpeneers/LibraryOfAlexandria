@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 console.log('Redirecting to library...');
                 window.location.href = '/library.html';
-            }, 2000); // Reduced to 2 seconds for faster testing
+            }, 5000); // Increased to 5 seconds so you can see the message
         } catch (error) {
             console.error('Registration error:', error);
             showMessage(error.message, 'danger');
