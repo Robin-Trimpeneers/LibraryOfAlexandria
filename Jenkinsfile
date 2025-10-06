@@ -8,7 +8,6 @@ pipeline {
     environment {
         DOCKER_REPO = 'robintrimpeneerspxl/librarydb'
         SERVER_IP = '192.168.129.139'
-        DEPLOY_USER = credentials('deploy-user-credentials')
         
         // Database credentials
         DB_CREDENTIALS = credentials('mysql-credentials')
@@ -133,7 +132,14 @@ pipeline {
     
     post {
         always {
-            cleanWs()
+            script {
+                // Clean workspace if in agent context
+                try {
+                    cleanWs()
+                } catch (Exception e) {
+                    echo "Workspace cleanup failed: ${e.getMessage()}"
+                }
+            }
         }
     }
 }
