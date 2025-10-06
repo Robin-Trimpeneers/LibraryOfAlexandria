@@ -37,12 +37,12 @@ pipeline {
         stage('Test') {
             steps {
                 dir('Backend') {
-                    sh 'mvn clean test'
+                    sh './mvnw clean test -Dspring.profiles.active=test'
                 }
             }
             post {
                 always {
-                    publishTestResults testResultsPattern: 'Backend/target/surefire-reports/*.xml'
+                    junit testResultsPattern: 'Backend/target/surefire-reports/*.xml'
                 }
             }
         }
@@ -50,7 +50,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('Backend') {
-                    sh 'mvn clean package -DskipTests'
+                    sh './mvnw clean package -DskipTests'
                 }
             }
         }
