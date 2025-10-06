@@ -86,24 +86,27 @@ pipeline {
                     
                     writeFile file: '.env', text: envContent
                     
-                    // SSH deployment with username/password credentials
-                    withCredentials([usernamePassword(credentialsId: 'ssh-key-credentials', usernameVariable: 'SSH_USER', passwordVariable: 'SSH_PASS')]) {
+                    // SSH deployment with SSH key authentication
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-credentials', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                         sh """
-                            # Create deployment directory using password authentication
-                            sshpass -p '\$SSH_PASS' ssh -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} '
+                            # Set proper permissions for SSH key
+                            chmod 600 \$SSH_KEY
+                            
+                            # Create deployment directory
+                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} '
                                 sudo mkdir -p ${deployPath}
                                 sudo chown \$USER:\$USER ${deployPath}
                             '
                             
-                            # Copy files using password authentication
-                            sshpass -p '\$SSH_PASS' scp -o StrictHostKeyChecking=no ${composeFile} \$SSH_USER@${env.SERVER_IP}:${deployPath}/
-                            sshpass -p '\$SSH_PASS' scp -o StrictHostKeyChecking=no .env \$SSH_USER@${env.SERVER_IP}:${deployPath}/
-                            sshpass -p '\$SSH_PASS' scp -o StrictHostKeyChecking=no nginx.conf \$SSH_USER@${env.SERVER_IP}:${deployPath}/
-                            sshpass -p '\$SSH_PASS' scp -o StrictHostKeyChecking=no init.sql \$SSH_USER@${env.SERVER_IP}:${deployPath}/
-                            sshpass -p '\$SSH_PASS' scp -r -o StrictHostKeyChecking=no Frontend \$SSH_USER@${env.SERVER_IP}:${deployPath}/
+                            # Copy deployment files
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no ${composeFile} \$SSH_USER@${env.SERVER_IP}:${deployPath}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no .env \$SSH_USER@${env.SERVER_IP}:${deployPath}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no nginx.conf \$SSH_USER@${env.SERVER_IP}:${deployPath}/
+                            scp -i \$SSH_KEY -o StrictHostKeyChecking=no init.sql \$SSH_USER@${env.SERVER_IP}:${deployPath}/
+                            scp -r -i \$SSH_KEY -o StrictHostKeyChecking=no Frontend \$SSH_USER@${env.SERVER_IP}:${deployPath}/
                             
-                            # Deploy using password authentication
-                            sshpass -p '\$SSH_PASS' ssh -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} '
+                            # Deploy application
+                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} '
                                 cd ${deployPath}
                                 
                                 # Update image tag in compose file
@@ -120,7 +123,7 @@ pipeline {
                         """
                     }
                     
-                    // Also archive artifacts as backup
+                    // Archive artifacts as backup
                     archiveArtifacts artifacts: '.env,docker-compose.yml,nginx.conf,init.sql', fingerprint: true
                 }
             }
