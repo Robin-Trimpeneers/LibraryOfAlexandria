@@ -142,20 +142,27 @@ pipeline {
                                 
                                 echo "Using compose file: \$COMPOSE_FILE"
                                 
-                                # Update image tag in compose file
+                                # Update image tag in compose file and remove build directive since we have pre-built image
                                 sed -i "s|image: robintrimpeneerspxl/librarydb.*|image: robintrimpeneerspxl/librarydb:${env.DOCKER_TAG}|g" \$COMPOSE_FILE
+                                sed -i "/build: .\\/Backend/d" \$COMPOSE_FILE
                                 
                                 # Show updated compose file content
                                 echo "Updated compose file content:"
                                 cat \$COMPOSE_FILE
                                 
-                                # Stop and start containers
-                                docker-compose -f \$COMPOSE_FILE down || true
-                                docker-compose -f \$COMPOSE_FILE up -d
+                                # Stop and start containers (using docker compose V2 syntax)
+                                docker compose -f \$COMPOSE_FILE down || true
+                                docker compose -f \$COMPOSE_FILE up -d
                                 
                                 # Wait and check health
                                 sleep 30
-                                curl -f http://localhost:8080/actuator/health || curl -f http://localhost:8080 || echo "Health check failed but deployment may still be successful"
+                                
+                                # Check container status
+                                echo "Container status:"
+                                docker compose -f \$COMPOSE_FILE ps
+                                
+                                # Try different health check endpoints
+                                curl -f http://localhost:8080/actuator/health || curl -f http://localhost:8080 || curl -f http://localhost:5050/actuator/health || curl -f http://localhost:5050 || echo "Health check failed but containers may still be starting"
                             '
                         """
                     }
