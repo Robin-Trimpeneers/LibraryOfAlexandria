@@ -59,7 +59,16 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    docker.build("${env.DOCKER_REPO}:${env.DOCKER_TAG}", "./Backend")
+                    def image = docker.build("${env.DOCKER_REPO}:${env.DOCKER_TAG}", "./Backend")
+                    
+                    // Push image to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                            echo "\$DOCKER_PASS" | docker login -u "\$DOCKER_USER" --password-stdin
+                            docker push ${env.DOCKER_REPO}:${env.DOCKER_TAG}
+                            docker logout
+                        """
+                    }
                 }
             }
         }
