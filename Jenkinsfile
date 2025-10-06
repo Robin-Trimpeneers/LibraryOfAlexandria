@@ -86,7 +86,7 @@ pipeline {
                     
                     writeFile file: '.env', text: envContent
                     
-                    // SSH deployment with credentials
+                    // SSH deployment with credentialsd
                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-credentials', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                         sh """
                             # Set up SSH key permissions
