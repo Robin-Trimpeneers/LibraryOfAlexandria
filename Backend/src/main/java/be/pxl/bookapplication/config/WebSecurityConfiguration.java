@@ -78,7 +78,9 @@ public class WebSecurityConfiguration {
             "http://localhost:*",     // Local development with any port
             "http://127.0.0.1:*",     // Local loopback
             "http://192.168.129.139:8080",  // Production server
-            "http://192.168.129.139:*"      // Production server with any port
+            "http://192.168.129.139:*",     // Production server with any port
+            "https://library.trimpeneers.be",  // Production domain HTTPS
+            "http://library.trimpeneers.be"    // Production domain HTTP
         ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList(
