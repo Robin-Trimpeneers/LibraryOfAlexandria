@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function registerUser(name, email, password) {
         console.log(config.API_URL)
-        const response = await fetch(`${config.API_URL}/api/auth/users`, {
+        const response = await fetch(`${config.API_URL}/auth/users`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
       function preventAccessWithoutCookie() {
-        fetch(`${config.API_URL}/api/auth/check-cookie`, { credentials: 'include' })            .then(response => response.json())
+        fetch(`${config.API_URL}/auth/check-cookie`, { credentials: 'include' })            .then(response => response.json())
             .then(data => {
                 if (data.message !== "Cookie found") {
                     window.location.href = '/login.html';
