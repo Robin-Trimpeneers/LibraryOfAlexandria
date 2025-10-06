@@ -92,24 +92,35 @@ pipeline {
                             # Set proper permissions for SSH key
                             chmod 600 \$SSH_KEY
                             
-                            # Create deployment directory (without sudo, in user home)
+                            # Debug: List available files in workspace
+                            echo "=== Files in workspace root ==="
+                            ls -la
+                            echo "=== Looking for compose files ==="
+                            find . -name "*.yml" -o -name "*.yaml" | head -10
+                            
+                            # Create deployment directory
                             ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} '
                                 mkdir -p ~/deployments/${deployPath.replaceAll('/opt/', '')}
                                 DEPLOY_PATH=~/deployments/${deployPath.replaceAll('/opt/', '')}
                                 echo "Using deployment path: \$DEPLOY_PATH"
                             '
                             
-                            # Copy deployment files (using correct file paths)
-                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@${env.SERVER_IP} "mkdir -p ~/deployments/${deployPath.replaceAll('/opt/', '')}"
-                            
-                            # Check if files exist and copy them
-                            if [ -f "${composeFile}" ]; then
+                            # Find and copy compose file
+                            if [ -f "compose.yaml" ]; then
+                                echo "Found compose.yaml, copying..."
+                                scp -i \$SSH_KEY -o StrictHostKeyChecking=no compose.yaml \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/docker-compose.yml
+                            elif [ -f "docker-compose.yml" ]; then
+                                echo "Found docker-compose.yml, copying..."
+                                scp -i \$SSH_KEY -o StrictHostKeyChecking=no docker-compose.yml \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
+                            elif [ -f "${composeFile}" ]; then
+                                echo "Found ${composeFile}, copying..."
                                 scp -i \$SSH_KEY -o StrictHostKeyChecking=no ${composeFile} \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
                             else
-                                echo "Warning: ${composeFile} not found, using docker-compose.yml"
-                                scp -i \$SSH_KEY -o StrictHostKeyChecking=no docker-compose.yml \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
+                                echo "ERROR: No compose file found!"
+                                exit 1
                             fi
                             
+                            # Copy .env file
                             scp -i \$SSH_KEY -o StrictHostKeyChecking=no .env \$SSH_USER@${env.SERVER_IP}:~/deployments/${deployPath.replaceAll('/opt/', '')}/
                             
                             # Copy other files if they exist
@@ -126,19 +137,19 @@ pipeline {
                                 echo "Files in deployment directory:"
                                 ls -la
                                 
-                                # Determine which compose file to use
-                                if [ -f "${composeFile}" ]; then
-                                    COMPOSE_FILE="${composeFile}"
-                                else
-                                    COMPOSE_FILE="docker-compose.yml"
-                                fi
+                                # Use docker-compose.yml (should exist now)
+                                COMPOSE_FILE="docker-compose.yml"
                                 
                                 echo "Using compose file: \$COMPOSE_FILE"
                                 
                                 # Update image tag in compose file
                                 sed -i "s|image: robintrimpeneerspxl/librarydb.*|image: robintrimpeneerspxl/librarydb:${env.DOCKER_TAG}|g" \$COMPOSE_FILE
                                 
-                                # Stop and start containers (Docker should work without sudo if user is in docker group)
+                                # Show updated compose file content
+                                echo "Updated compose file content:"
+                                cat \$COMPOSE_FILE
+                                
+                                # Stop and start containers
                                 docker-compose -f \$COMPOSE_FILE down || true
                                 docker-compose -f \$COMPOSE_FILE up -d
                                 
